@@ -99,6 +99,7 @@ export default function App() {
           globalState={globalState}
           user={users[currentUser]}
           currentUser={currentUser}
+          onSwitchUser={setCurrentUser}
           logs={logs}
           currentStepIndex={currentStepIndex}
         />

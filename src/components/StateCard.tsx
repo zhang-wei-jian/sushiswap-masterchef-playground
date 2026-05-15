@@ -7,6 +7,7 @@ interface StateCardProps {
   globalState: GlobalState;
   user: UserState;
   currentUser: string;
+  onSwitchUser: (user: string) => void;
   logs: string[];
   currentStepIndex: number;
 }
@@ -21,7 +22,7 @@ function formatDebt(val: number): string {
   return (val / PRECISION).toFixed(4);
 }
 
-export default function StateCard({ globalState, user, currentUser, logs, currentStepIndex }: StateCardProps) {
+export default function StateCard({ globalState, user, currentUser, onSwitchUser, logs, currentStepIndex }: StateCardProps) {
   const logBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,37 +33,18 @@ export default function StateCard({ globalState, user, currentUser, logs, curren
 
   return (
     <section className="flex flex-col h-full bg-[#0d0d0d] border-l border-gray-800 overflow-y-auto">
-      {/* Global State */}
-      <div className="px-4 py-3 border-b border-gray-800">
-        <div className="flex items-center gap-2 mb-3">
-          <Globe size={16} className="text-blue-400" />
-          <h3 className="text-sm font-bold text-gray-200">Global State</h3>
-        </div>
-        <div className="space-y-2">
-          <StateRow
-            label="accSushiPerShare"
-            value={formatAcc(globalState.accSushiPerShare)}
-            highlight={currentStepIndex >= 0}
-            varName="accSushiPerShare"
-          />
-          <StateRow
-            label="lastRewardBlock"
-            value={String(globalState.lastRewardBlock)}
-            highlight={currentStepIndex >= 0}
-            varName="lastRewardBlock"
-          />
-          <StateRow
-            label="lpSupply"
-            value={String(globalState.lpSupply)}
-            highlight={currentStepIndex >= 0}
-            varName="lpSupply"
-          />
-          <StateRow
-            label="sushiPerBlock"
-            value={String(globalState.sushiPerBlock)}
-            varName="sushiPerBlock"
-          />
-        </div>
+      {/* Header with Account Selector */}
+      <div className="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+        <h2 className="text-sm font-bold text-gray-200">Accounts</h2>
+        <select
+          value={currentUser}
+          onChange={(e) => onSwitchUser(e.target.value)}
+          className="bg-[#1a1a1a] border border-gray-700 rounded px-3 py-1.5 text-xs font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 cursor-pointer"
+        >
+          <option value="Alice">Alice</option>
+          <option value="Bob">Bob</option>
+          <option value="Charlie">Charlie</option>
+        </select>
       </div>
 
       {/* User State */}
@@ -92,6 +74,39 @@ export default function StateCard({ globalState, user, currentUser, logs, curren
             value={user.wallet.toFixed(2)}
             valueColor="text-yellow-400"
             varName="wallet"
+          />
+        </div>
+      </div>
+
+      {/* Global State */}
+      <div className="px-4 py-3 border-b border-gray-800">
+        <div className="flex items-center gap-2 mb-3">
+          <Globe size={16} className="text-blue-400" />
+          <h3 className="text-sm font-bold text-gray-200">Global State</h3>
+        </div>
+        <div className="space-y-2">
+          <StateRow
+            label="accSushiPerShare"
+            value={formatAcc(globalState.accSushiPerShare)}
+            highlight={currentStepIndex >= 0}
+            varName="accSushiPerShare"
+          />
+          <StateRow
+            label="lastRewardBlock"
+            value={String(globalState.lastRewardBlock)}
+            highlight={currentStepIndex >= 0}
+            varName="lastRewardBlock"
+          />
+          <StateRow
+            label="lpSupply"
+            value={String(globalState.lpSupply)}
+            highlight={currentStepIndex >= 0}
+            varName="lpSupply"
+          />
+          <StateRow
+            label="sushiPerBlock"
+            value={String(globalState.sushiPerBlock)}
+            varName="sushiPerBlock"
           />
         </div>
       </div>
