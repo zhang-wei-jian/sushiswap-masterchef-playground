@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MasterChef 完整逻辑实验室</title>
+    <style>
+        :root { --primary: #fa0050; --bg: #0d0d0d; --card: #1a1a1a; --text: #e0e0e0; --code-bg: #1e1e1e; --highlight: rgba(250, 0, 80, 0.4); }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background: var(--card); padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .block-info { color: #00ff88; font-family: monospace; font-weight: bold; }
+        main { display: grid; grid-template-columns: 350px 1fr 320px; gap: 1px; background: #333; flex: 1; overflow: hidden; }
+        section { background: var(--bg); padding: 20px; overflow-y: auto; }
+
+        /* 左侧 UI */
+        .wallet-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+        .wallet-btn { width: 48%; padding: 8px; border-radius: 6px; border: 1px solid #444; background: #222; color: #fff; cursor: pointer; }
+        .wallet-btn.active { border-color: var(--primary); color: var(--primary); }
+        input { width: 100%; padding: 10px; background: #000; border: 1px solid #333; color: #fff; border-radius: 6px; margin: 10px 0; }
+        .action-btn { width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; color: #fff; }
+
+        /* 中间 代码 */
+        .code-viewer { background: var(--code-bg); position: relative; }
+        pre { margin: 0; padding: 15px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 12px; line-height: 1.5; color: #d4d4d4; }
+        .code-line { display: block; padding: 0 10px; border-radius: 3px; border-left: 3px solid transparent; white-space: pre; }
+        .code-line.active { background: var(--highlight); border-left-color: var(--primary); color: #fff; font-weight: bold; }
+        .comment { color: #6a9955; }
+        .keyword { color: #569cd6; }
+        .func-name { color: #dcdcaa; }
+
+        /* 右侧 状态 */
+        .state-panel { border-left: 1px solid #333; }
+        .state-item { display: flex; justify-content: space-between; margin: 8px 0; font-family: monospace; font-size: 13px; }
+        .state-val { color: #00ff88; }
+        .log-box { font-size: 11px; color: #aaa; background: #000; padding: 10px; border-radius: 4px; height: 100px; overflow-y: auto; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight: bold; color: var(--primary);">🍣 MasterChef Solidity Debugger</div>
+    <div class="block-info">Block: <span id="display-block">0</span></div>
+    <button onclick="nextBlock()" style="background:transparent; color:#00ff88; border:1px solid #00ff88; padding:5px 12px; border-radius:4px; cursor:pointer;">+ Next Block</button>
+</header>
+
+<main>
+    <section>
+        <div class="wallet-card">
+            <h3>Accounts</h3>
+            <div style="display:flex; justify-content: space-between;">
+                <button class="wallet-btn active" id="btn-Alice" onclick="switchAccount('Alice')">Alice</button>
+                <button class="wallet-btn" id="btn-Bob" onclick="switchAccount('Bob')">Bob</button>
+            </div>
+            <p style="font-size:12px; margin: 15px 0 5px;">LP Balance: <span id="ui-staked" style="color:#fff">0</span></p>
+            <p style="font-size:12px; margin: 5px 0;">Reward: <span id="ui-pending" style="color:var(--primary)">0</span> SUSHI</p>
+        </div>
+        <div class="wallet-card">
+            <input type="number" id="input-amount" value="100">
+            <button class="action-btn" style="background:var(--primary);" onclick="runTransaction('deposit')">Deposit</button>
+            <button class="action-btn" style="background:#444; margin-top:8px;" onclick="runTransaction('withdraw')">Withdraw</button>
+        </div>
+    </section>
+
+    <section class="code-viewer">
+<pre id="code-content">
+<span class="code-line" id="line-d-1"><span class="keyword">function</span> <span class="func-name">deposit</span>(uint256 _amount) <span class="keyword">public</span> {</span>
+<span class="code-line" id="line-d-2">    PoolInfo <span class="keyword">storage</span> pool = poolInfo[0];</span>
+<span class="code-line" id="line-d-3">    UserInfo <span class="keyword">storage</span> user = userInfo[msg.sender];</span>
+<span class="code-line" id="line-d-4">    <span class="func-name">updatePool</span>(); <span class="comment">// 1. 同步全局水位</span></span>
+<span class="code-line" id="line-d-5">    <span class="keyword">if</span> (user.amount > 0) {</span>
+<span class="code-line" id="line-d-6">        uint256 pending = (user.amount * pool.acc) - user.rewardDebt;</span>
+<span class="code-line" id="line-d-7">        <span class="func-name">safeTransfer</span>(msg.sender, pending); <span class="comment">// 2. 发放旧账</span></span>
+<span class="code-line" id="line-d-8">    }</span>
+<span class="code-line" id="line-d-9">    user.amount += _amount; <span class="comment">// 3. 更新个人股份</span></span>
+<span class="code-line" id="line-d-10">    user.rewardDebt = user.amount * pool.acc; <span class="comment">// 4. 重新立快照</span></span>
+<span class="code-line" id="line-d-11">}</span>
+
+<span class="code-line" id="line-w-1"><span class="keyword">function</span> <span class="func-name">withdraw</span>(uint256 _amount) <span class="keyword">public</span> {</span>
+<span class="code-line" id="line-w-2">    PoolInfo <span class="keyword">storage</span> pool = poolInfo[0];</span>
+<span class="code-line" id="line-w-3">    UserInfo <span class="keyword">storage</span> user = userInfo[msg.sender];</span>
+<span class="code-line" id="line-w-4">    <span class="func-name">updatePool</span>(); <span class="comment">// 1. 同步全局水位</span></span>
+<span class="code-line" id="line-w-5">    uint256 pending = (user.amount * pool.acc) - user.rewardDebt;</span>
+<span class="code-line" id="line-w-6">    <span class="func-name">safeTransfer</span>(msg.sender, pending); <span class="comment">// 2. 发放旧账</span></span>
+<span class="code-line" id="line-w-7">    user.amount -= _amount; <span class="comment">// 3. 减少个人股份</span></span>
+<span class="code-line" id="line-w-8">    user.rewardDebt = user.amount * pool.acc; <span class="comment">// 4. 重新立快照</span></span>
+<span class="code-line" id="line-w-9">}</span>
+
+<span class="code-line" id="line-u-1"><span class="keyword">function</span> <span class="func-name">updatePool</span>() <span class="keyword">internal</span> {</span>
+<span class="code-line" id="line-u-2">    uint256 lpSupply = lpToken.balanceOf(address(this));</span>
+<span class="code-line" id="line-u-3">    uint256 reward = (block.number - lastBlock) * sushiPerBlock;</span>
+<span class="code-line" id="line-u-4">    pool.acc += (reward * 1e12) / lpSupply; <span class="comment">// 累加每股分红</span></span>
+<span class="code-line" id="line-u-5">    pool.lastBlock = block.number;</span>
+<span class="code-line" id="line-u-6">}</span>
+</pre>
+    </section>
+
+    <section class="state-panel">
+        <div class="state-group">
+            <h3>Global State</h3>
+            <div class="state-item"><span>accSushiPerShare</span><span class="state-val" id="st-acc">0</span></div>
+            <div class="state-item"><span>lastRewardBlock</span><span class="state-val" id="st-last">0</span></div>
+            <div class="state-item"><span>Total LP Staked</span><span class="state-val" id="st-supply">0</span></div>
+        </div>
+        <div class="state-group">
+            <h3>User: <span id="st-user" style="color:var(--primary)">Alice</span></h3>
+            <div class="state-item"><span>Amount (S)</span><span class="state-val" id="st-u-amt">0</span></div>
+            <div class="state-item"><span>rewardDebt (D)</span><span class="state-val" id="st-u-debt">0</span></div>
+        </div>
+        <div class="log-box" id="log">等待操作...</div>
+    </section>
+</main>
+
+<script>
+    const P = 1000000;
+    let block = 0;
+    let pool = { acc: 0, last: 0, supply: 0, sushiPerBlock: 1000 };
+    let users = {
+        Alice: { amount: 0, debt: 0, wallet: 0 },
+        Bob: { amount: 0, debt: 0, wallet: 0 }
+    };
+    let currentUser = 'Alice';
+    let isRunning = false;
+
+    function log(msg) {
+        const lb = document.getElementById('log');
+        lb.innerHTML += `<div>> ${msg}</div>`;
+        lb.scrollTop = lb.scrollHeight;
+    }
+
+    async function step(id, msg) {
+        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        log(msg);
+        await new Promise(r => setTimeout(r, 700));
+    }
+
+    function updateUI() {
+        document.getElementById('display-block').innerText = block;
+        document.getElementById('st-acc').innerText = (pool.acc / P).toFixed(4);
+        document.getElementById('st-last').innerText = pool.last;
+        document.getElementById('st-supply').innerText = pool.supply;
+        const u = users[currentUser];
+        document.getElementById('st-u-amt').innerText = u.amount;
+        document.getElementById('st-u-debt').innerText = (u.debt / P).toFixed(4);
+        document.getElementById('st-user').innerText = currentUser;
+        document.getElementById('ui-staked').innerText = u.amount;
+        // 计算 Pending
+        let tempAcc = pool.acc;
+        if (block > pool.last && pool.supply > 0) {
+            tempAcc += ((block - pool.last) * pool.sushiPerBlock * P) / pool.supply;
+        }
+        let pending = (u.amount * tempAcc / P) - (u.debt / P);
+        document.getElementById('ui-pending').innerText = Math.max(0, pending).toFixed(2);
+    }
+
+    function switchAccount(name) {
+        if(isRunning) return;
+        currentUser = name;
+        document.querySelectorAll('.wallet-btn').forEach(b => b.classList.toggle('active', b.innerText === name));
+        updateUI();
+    }
+
+    function nextBlock() {
+        if(isRunning) return;
+        block++; updateUI();
+        log(`区块增加到 ${block}`);
+    }
+
+    async function runTransaction(type) {
+        if(isRunning) return;
+        isRunning = true;
+        const u = users[currentUser];
+        const amt = parseInt(document.getElementById('input-amount').value);
+        const prefix = type === 'deposit' ? 'd' : 'w';
+
+        await step(`line-${prefix}-1`, `执行 ${type}(${amt})...`);
+        await step(`line-${prefix}-4`, `调用 updatePool()`);
+
+        // updatePool
+        await step('line-u-1', `进入 updatePool`);
+        let multiplier = block - pool.last;
+        if (multiplier > 0 && pool.supply > 0) {
+            let reward = multiplier * pool.sushiPerBlock;
+            pool.acc += (reward * P) / pool.supply;
+            await step('line-u-4', `累加新水位: acc = ${pool.acc/P}`);
+        }
+        pool.last = block;
+        await step('line-u-5', `更新最后区块: last = ${block}`);
+        updateUI();
+
+        // 结算
+        await step(`line-${prefix}-5`, `检查旧账...`);
+        let pending = (u.amount * pool.acc / P) - (u.debt / P);
+        if (pending > 0) {
+            await step(`line-${prefix}-6`, `计算奖金: (${u.amount}*${pool.acc/P}) - ${u.debt/P} = ${pending.toFixed(2)}`);
+            u.wallet += pending;
+            await step(`line-${prefix}-7`, `发送奖金给用户`);
+        }
+
+        // 改变本金
+        if (type === 'deposit') {
+            u.amount += amt;
+            pool.supply += amt;
+            await step(`line-d-9`, `增加本金: amount = ${u.amount}`);
+        } else {
+            u.amount -= amt;
+            pool.supply -= amt;
+            await step(`line-w-7`, `减少本金: amount = ${u.amount}`);
+        }
+        updateUI();
+
+        // 重置负债
+        u.debt = (u.amount * pool.acc);
+        await step(`line-${prefix === 'd' ? 'd-10' : 'w-8'}`, `重置负债快照: rewardDebt = ${u.amount} * ${pool.acc/P}`);
+        
+        document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+        isRunning = false;
+        log(`${type} 执行完毕。`);
+        updateUI();
+    }
+
+    updateUI();
+</script>
+</body>
+</html>
