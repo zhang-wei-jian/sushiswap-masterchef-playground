@@ -2,6 +2,22 @@
 
 交互式 SushiSwap MasterChef 合约调试器，通过可视化方式理解 DeFi 质押奖励分配的底层数学原理。
 
+
+
+运行截图
+
+![描述](docs/masterChefDebugger.png)
+
+
+
+
+
+架构图
+
+![描述](docs/frameworkImage.png)
+
+
+
 ## 功能
 
 - **断点调试** — 将 deposit/withdraw 操作拆解为 A→B→C→D 四个步骤，逐行执行并高亮对应 Solidity 代码
