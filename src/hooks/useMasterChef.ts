@@ -138,13 +138,13 @@ export function useMasterChef() {
     currentGlobal = newGlobal;
 
     if (accDelta > 0) {
-      pushStep('A', 'line-u-4', `累加新水位: acc += ${accDelta / PRECISION}`);
+      pushStep('A', 'line-u-7', `累加新水位: acc += ${accDelta / PRECISION}`);
     } else {
-      pushStep('A', 'line-u-4', `无新区块奖励或无质押者`);
+      pushStep('A', 'line-u-7', `无新区块奖励或无质押者`);
     }
 
     currentGlobal.lastRewardBlock = targetBlock;
-    pushStep('A', 'line-u-5', `更新最后区块: last = ${targetBlock}`);
+    pushStep('A', 'line-u-8', `更新最后区块: last = ${targetBlock}`);
 
     // Step B: Settlement
     pushStep('B', `line-${prefix}-5`, `检查旧账...`);
