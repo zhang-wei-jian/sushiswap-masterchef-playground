@@ -179,7 +179,7 @@ export function useMasterChef() {
     const newDebt = (currentUserState.amount * currentGlobal.accSushiPerShare);
     currentUserState.rewardDebt = newDebt;
     const stepDLine = type === 'deposit' ? 'line-d-10' : 'line-w-8';
-    pushStep('D', stepDLine, `重置负债快照: rewardDebt = ${currentUserState.amount} × ${currentGlobal.accSushiPerShare / PRECISION} = ${newDebt / PRECISION}`);
+    pushStep('D', stepDLine, `重置负债: rewardDebt = ${currentUserState.amount} × ${currentGlobal.accSushiPerShare / PRECISION} = ${newDebt / PRECISION}`);
 
     // Update state
     setGlobalState(currentGlobal);

@@ -23,7 +23,7 @@ const updatePoolLines: CodeLine[] = [
   { id: 'line-u-3', code: '    if (block.number <= pool.lastRewardBlock) return;', comment: ' // 无新区块则跳过' },
   { id: 'line-u-4', code: '    uint256 lpSupply = pool.lpToken.balanceOf(address(this));', comment: ' // 查询池子总质押量' },
   { id: 'line-u-5', code: '    uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);', comment: ' // 区块差值' },
-  { id: 'line-u-6', code: '    uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', comment: ' // 区块差×每块产出×池权重÷总权重=本池奖励' },
+  { id: 'line-u-6', code: '    uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', comment: ' // 本池奖励 = 区块差 × 每块产出 × 池权重 ÷ 总权重' },
   { id: 'line-u-7', code: '    pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));', comment: ' // acc += 奖励×精度÷总质押(每股分红)' },
   { id: 'line-u-8', code: '    pool.lastRewardBlock = block.number;', comment: ' // 记录最新区块' },
   { id: 'line-u-9', code: '}' },
@@ -39,7 +39,7 @@ const depositLines: CodeLine[] = [
   { id: 'line-d-7', code: '        safeSushiTransfer(msg.sender, pending);', comment: ' // 2. 发放旧账' },
   { id: 'line-d-8', code: '    }' },
   { id: 'line-d-9', code: '    user.amount = user.amount.add(_amount);', comment: ' // 3. 增加用户质押量' },
-  { id: 'line-d-10', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 新快照 = 新份额×acc÷精度' },
+  { id: 'line-d-10', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 重置负债 = 新份额 × acc ÷ 精度' },
   { id: 'line-d-11', code: '}' },
 ];
 
@@ -51,7 +51,7 @@ const withdrawLines: CodeLine[] = [
   { id: 'line-w-5', code: '    uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt);', comment: ' // pending = 份额×acc÷精度 - 旧负债' },
   { id: 'line-w-6', code: '    safeSushiTransfer(msg.sender, pending);', comment: ' // 2. 发放旧账' },
   { id: 'line-w-7', code: '    user.amount = user.amount.sub(_amount);', comment: ' // 3. 减少用户质押量' },
-  { id: 'line-w-8', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 新快照 = 新份额×acc÷精度' },
+  { id: 'line-w-8', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 重置负债 = 新份额 × acc ÷ 精度' },
   { id: 'line-w-9', code: '}' },
 ];
 
