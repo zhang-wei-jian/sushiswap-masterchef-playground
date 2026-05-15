@@ -52,7 +52,7 @@ export default function StateCard({ globalState, user, currentUser, logs, curren
             varName="lastRewardBlock"
           />
           <StateRow
-            label="Total LP Staked"
+            label="lpSupply"
             value={String(globalState.lpSupply)}
             highlight={currentStepIndex >= 0}
             varName="lpSupply"

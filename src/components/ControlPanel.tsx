@@ -167,12 +167,12 @@ export default function ControlPanel({
         {/* User stats */}
         <div className="mt-3 space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-gray-400">LP Balance:</span>
+            <span className="text-gray-400">user.amount:</span>
             <span className="text-white font-mono">{user.amount}</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-gray-400">Reward:</span>
-            <span className="text-red-500 font-mono">{pending.toFixed(2)} SUSHI</span>
+            <span className="text-gray-400">pendingSushi:</span>
+            <span className="text-red-500 font-mono">{pending.toFixed(2)}</span>
           </div>
         </div>
       </div>
