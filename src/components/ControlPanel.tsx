@@ -122,7 +122,7 @@ export default function ControlPanel({
   };
 
   return (
-    <section className="flex flex-col h-full bg-[#0d0d0d] overflow-y-auto">
+    <section className="flex flex-col h-full bg-[#0d0d0d] overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-800">
         <div className="flex items-center gap-2 mb-1">
@@ -312,8 +312,8 @@ export default function ControlPanel({
       </div>
 
       {/* Step History */}
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
+      <div className="px-4 py-3 flex-1 min-h-0 flex flex-col">
+        <div className="flex items-center justify-between mb-2 shrink-0">
           <p className="text-xs text-gray-400">执行步骤记录</p>
           {steps.length > 0 && (
             <button
@@ -325,9 +325,9 @@ export default function ControlPanel({
           )}
         </div>
         {steps.length === 0 ? (
-          <p className="text-xs text-gray-500 italic">暂无步骤记录</p>
+          <p className="text-xs text-gray-500 italic shrink-0">暂无步骤记录</p>
         ) : (
-          <div className="max-h-96 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
             {steps.map((s, i) => (
               <div
                 key={i}
