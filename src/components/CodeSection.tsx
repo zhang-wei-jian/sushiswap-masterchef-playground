@@ -1,211 +1,82 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileCode2 } from 'lucide-react';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-solidity';
+
+Prism.manual = true;
 
 interface CodeSectionProps {
   activeLineId: string | null;
   activeStepKey: string | null;
 }
 
-interface LineDef {
+interface CodeLine {
   id: string;
-  indent: number;
-  tokens: Array<{ text: string; type?: 'keyword' | 'func' | 'comment' | 'plain' }>;
+  code: string;
+  comment?: string;
 }
 
-const depositLines: LineDef[] = [
-  {
-    id: 'line-d-1', indent: 0,
-    tokens: [
-      { text: 'function ', type: 'keyword' },
-      { text: 'deposit', type: 'func' },
-      { text: '(uint256 _pid, uint256 _amount) ', type: 'plain' },
-      { text: 'public', type: 'keyword' },
-      { text: ' {', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-d-2', indent: 1,
-    tokens: [
-      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-d-3', indent: 1,
-    tokens: [
-      { text: 'UserInfo storage user = userInfo[_pid][msg.sender];', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-d-4', indent: 1,
-    tokens: [
-      { text: 'updatePool(_pid); ', type: 'plain' },
-      { text: '// 1. 同步全局水位', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-5', indent: 1,
-    tokens: [
-      { text: 'if (user.amount > 0) {', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-d-6', indent: 2,
-    tokens: [
-      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt); ', type: 'plain' },
-      { text: '// pending = 份额×acc÷精度 - 旧负债', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-7', indent: 2,
-    tokens: [
-      { text: 'safeSushiTransfer(msg.sender, pending); ', type: 'plain' },
-      { text: '// 2. 发放旧账', type: 'comment' },
-    ],
-  },
-  { id: 'line-d-8', indent: 1, tokens: [{ text: '}', type: 'plain' }] },
-  {
-    id: 'line-d-9', indent: 1,
-    tokens: [
-      { text: 'user.amount = user.amount.add(_amount); ', type: 'plain' },
-      { text: '// 3. 增加用户质押量', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-10', indent: 1,
-    tokens: [
-      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
-      { text: '// 4. 新快照 = 新份额×acc÷精度', type: 'comment' },
-    ],
-  },
-  { id: 'line-d-11', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
+const updatePoolLines: CodeLine[] = [
+  { id: 'line-u-1', code: 'function updatePool(uint256 _pid) public {' },
+  { id: 'line-u-2', code: '    PoolInfo storage pool = poolInfo[_pid];' },
+  { id: 'line-u-3', code: '    if (block.number <= pool.lastRewardBlock) return;', comment: ' // 无新区块则跳过' },
+  { id: 'line-u-4', code: '    uint256 lpSupply = pool.lpToken.balanceOf(address(this));', comment: ' // 查询池子总质押量' },
+  { id: 'line-u-5', code: '    uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);', comment: ' // 区块差值' },
+  { id: 'line-u-6', code: '    uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', comment: ' // 区块差×每块产出×池权重÷总权重' },
+  { id: 'line-u-7', code: '    pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));', comment: ' // acc += 奖励×精度÷总质押(每股分红)' },
+  { id: 'line-u-8', code: '    pool.lastRewardBlock = block.number;', comment: ' // 记录最新区块' },
+  { id: 'line-u-9', code: '}' },
 ];
 
-const withdrawLines: LineDef[] = [
-  {
-    id: 'line-w-1', indent: 0,
-    tokens: [
-      { text: 'function ', type: 'keyword' },
-      { text: 'withdraw', type: 'func' },
-      { text: '(uint256 _pid, uint256 _amount) ', type: 'plain' },
-      { text: 'public', type: 'keyword' },
-      { text: ' {', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-w-2', indent: 1,
-    tokens: [
-      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-w-3', indent: 1,
-    tokens: [
-      { text: 'UserInfo storage user = userInfo[_pid][msg.sender];', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-w-4', indent: 1,
-    tokens: [
-      { text: 'updatePool(_pid); ', type: 'plain' },
-      { text: '// 1. 同步全局水位', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-5', indent: 1,
-    tokens: [
-      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt); ', type: 'plain' },
-      { text: '// pending = 份额×acc÷精度 - 旧负债', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-6', indent: 1,
-    tokens: [
-      { text: 'safeSushiTransfer(msg.sender, pending); ', type: 'plain' },
-      { text: '// 2. 发放旧账', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-7', indent: 1,
-    tokens: [
-      { text: 'user.amount = user.amount.sub(_amount); ', type: 'plain' },
-      { text: '// 3. 减少用户质押量', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-8', indent: 1,
-    tokens: [
-      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
-      { text: '// 4. 新快照 = 新份额×acc÷精度', type: 'comment' },
-    ],
-  },
-  { id: 'line-w-9', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
+const depositLines: CodeLine[] = [
+  { id: 'line-d-1', code: 'function deposit(uint256 _pid, uint256 _amount) public {' },
+  { id: 'line-d-2', code: '    PoolInfo storage pool = poolInfo[_pid];' },
+  { id: 'line-d-3', code: '    UserInfo storage user = userInfo[_pid][msg.sender];' },
+  { id: 'line-d-4', code: '    updatePool(_pid);', comment: ' // 1. 同步全局水位' },
+  { id: 'line-d-5', code: '    if (user.amount > 0) {' },
+  { id: 'line-d-6', code: '        uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt);', comment: ' // pending = 份额×acc÷精度 - 旧负债' },
+  { id: 'line-d-7', code: '        safeSushiTransfer(msg.sender, pending);', comment: ' // 2. 发放旧账' },
+  { id: 'line-d-8', code: '    }' },
+  { id: 'line-d-9', code: '    user.amount = user.amount.add(_amount);', comment: ' // 3. 增加用户质押量' },
+  { id: 'line-d-10', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 新快照 = 新份额×acc÷精度' },
+  { id: 'line-d-11', code: '}' },
 ];
 
-const updatePoolLines: LineDef[] = [
-  {
-    id: 'line-u-1', indent: 0,
-    tokens: [
-      { text: 'function ', type: 'keyword' },
-      { text: 'updatePool', type: 'func' },
-      { text: '(uint256 _pid) ', type: 'plain' },
-      { text: 'public', type: 'keyword' },
-      { text: ' {', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-u-2', indent: 1,
-    tokens: [
-      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-u-3', indent: 1,
-    tokens: [
-      { text: 'if (block.number <= pool.lastRewardBlock) return; ', type: 'plain' },
-      { text: '// 无新区块则跳过', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-4', indent: 1,
-    tokens: [
-      { text: 'uint256 lpSupply = pool.lpToken.balanceOf(address(this)); ', type: 'plain' },
-      { text: '// 查询池子总质押量', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-5', indent: 1,
-    tokens: [
-      { text: 'uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number); ', type: 'plain' },
-      { text: '// 区块差值', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-6', indent: 1,
-    tokens: [
-      { text: 'uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint); ', type: 'plain' },
-      { text: '// 区块差×每块产出×池权重÷总权重', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-7', indent: 1,
-    tokens: [
-      { text: 'pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply)); ', type: 'plain' },
-      { text: '// acc += 奖励×精度÷总质押(每股分红)', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-8', indent: 1,
-    tokens: [
-      { text: 'pool.lastRewardBlock = block.number; ', type: 'plain' },
-      { text: '// 记录最新区块', type: 'comment' },
-    ],
-  },
-  { id: 'line-u-9', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
+const withdrawLines: CodeLine[] = [
+  { id: 'line-w-1', code: 'function withdraw(uint256 _pid, uint256 _amount) public {' },
+  { id: 'line-w-2', code: '    PoolInfo storage pool = poolInfo[_pid];' },
+  { id: 'line-w-3', code: '    UserInfo storage user = userInfo[_pid][msg.sender];' },
+  { id: 'line-w-4', code: '    updatePool(_pid);', comment: ' // 1. 同步全局水位' },
+  { id: 'line-w-5', code: '    uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt);', comment: ' // pending = 份额×acc÷精度 - 旧负债' },
+  { id: 'line-w-6', code: '    safeSushiTransfer(msg.sender, pending);', comment: ' // 2. 发放旧账' },
+  { id: 'line-w-7', code: '    user.amount = user.amount.sub(_amount);', comment: ' // 3. 减少用户质押量' },
+  { id: 'line-w-8', code: '    user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12);', comment: ' // 4. 新快照 = 新份额×acc÷精度' },
+  { id: 'line-w-9', code: '}' },
 ];
 
-function CodeLine({ line, isActive }: { line: LineDef; isActive: boolean }) {
-  const indent = '    '.repeat(line.indent);
+function tokenizeLine(code: string): Array<{ text: string; className?: string }> {
+  const tokens = Prism.tokenize(code, Prism.languages.solidity);
+  const result: Array<{ text: string; className?: string }> = [];
+
+  function processToken(token: string | Prism.Token) {
+    if (typeof token === 'string') {
+      result.push({ text: token });
+    } else {
+      result.push({
+        text: token.content as string,
+        className: `token-${token.type}`,
+      });
+    }
+  }
+
+  tokens.forEach(processToken);
+  return result;
+}
+
+function HighlightedLine({ line, isActive }: { line: CodeLine; isActive: boolean }) {
+  const tokens = useMemo(() => tokenizeLine(line.code), [line.code]);
+
   return (
     <div
       className={`code-line flex items-center px-3 py-0.5 rounded border-l-3 transition-all duration-200 ${
@@ -218,19 +89,16 @@ function CodeLine({ line, isActive }: { line: LineDef; isActive: boolean }) {
         {line.id.split('-').slice(-1)}
       </span>
       <span className="font-mono text-[13px] whitespace-pre">
-        {indent}
-        {line.tokens.map((token, i) => {
-          switch (token.type) {
-            case 'keyword':
-              return <span key={i} className="text-blue-400">{token.text}</span>;
-            case 'func':
-              return <span key={i} className="text-yellow-300">{token.text}</span>;
-            case 'comment':
-              return <span key={i} className="text-green-500">{token.text}</span>;
-            default:
-              return <span key={i}>{token.text}</span>;
-          }
-        })}
+        {tokens.map((token, i) =>
+          token.className ? (
+            <span key={i} className={token.className}>{token.text}</span>
+          ) : (
+            <span key={i}>{token.text}</span>
+          )
+        )}
+        {line.comment && (
+          <span className="text-green-500">{line.comment}</span>
+        )}
       </span>
     </div>
   );
@@ -294,21 +162,21 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
           <div className="mb-4">
             {updatePoolLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
-                <CodeLine line={line} isActive={activeLineId === line.id} />
+                <HighlightedLine line={line} isActive={activeLineId === line.id} />
               </div>
             ))}
           </div>
           <div className="mb-4">
             {depositLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
-                <CodeLine line={line} isActive={activeLineId === line.id} />
+                <HighlightedLine line={line} isActive={activeLineId === line.id} />
               </div>
             ))}
           </div>
           <div>
             {withdrawLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
-                <CodeLine line={line} isActive={activeLineId === line.id} />
+                <HighlightedLine line={line} isActive={activeLineId === line.id} />
               </div>
             ))}
           </div>
