@@ -27,66 +27,39 @@ const depositLines: LineDef[] = [
   {
     id: 'line-d-2', indent: 1,
     tokens: [
-      { text: 'PoolInfo ', type: 'plain' },
-      { text: 'storage ', type: 'keyword' },
-      { text: 'pool = poolInfo[_pid];', type: 'plain' },
+      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
     id: 'line-d-3', indent: 1,
     tokens: [
-      { text: 'UserInfo ', type: 'plain' },
-      { text: 'storage ', type: 'keyword' },
-      { text: 'user = userInfo[_pid][msg.sender];', type: 'plain' },
+      { text: 'UserInfo storage user = userInfo[_pid][msg.sender];', type: 'plain' },
     ],
   },
   {
     id: 'line-d-4', indent: 1,
     tokens: [
-      { text: 'updatePool', type: 'func' },
-      { text: '(_pid); ', type: 'plain' },
+      { text: 'updatePool(_pid); ', type: 'plain' },
       { text: '// 1. 同步全局水位', type: 'comment' },
     ],
   },
   {
     id: 'line-d-5', indent: 1,
     tokens: [
-      { text: 'if ', type: 'keyword' },
-      { text: '(user.amount > 0) {', type: 'plain' },
+      { text: 'if (user.amount > 0) {', type: 'plain' },
     ],
   },
   {
     id: 'line-d-6', indent: 2,
     tokens: [
-      { text: 'uint256 pending = user.amount', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(pool.accSushiPerShare)  ', type: 'plain' },
-      { text: '// ×acc: 计算用户应得总份额', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-6b', indent: 2,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(1e12)  ', type: 'plain' },
-      { text: '// ÷1e12: 还原精度(12位小数)', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-6c', indent: 2,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.sub', type: 'func' },
-      { text: '(user.rewardDebt);  ', type: 'plain' },
-      { text: '// -debt: 减去已结算的负债', type: 'comment' },
+      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt); ', type: 'plain' },
+      { text: '// pending = 份额×acc÷精度 - 旧负债', type: 'comment' },
     ],
   },
   {
     id: 'line-d-7', indent: 2,
     tokens: [
-      { text: 'safeSushiTransfer', type: 'func' },
-      { text: '(msg.sender, pending); ', type: 'plain' },
+      { text: 'safeSushiTransfer(msg.sender, pending); ', type: 'plain' },
       { text: '// 2. 发放旧账', type: 'comment' },
     ],
   },
@@ -94,28 +67,15 @@ const depositLines: LineDef[] = [
   {
     id: 'line-d-9', indent: 1,
     tokens: [
-      { text: 'user.amount = user.amount', type: 'plain' },
-      { text: '.add', type: 'func' },
-      { text: '(_amount);  ', type: 'plain' },
-      { text: '// += _amount: 增加用户质押量', type: 'comment' },
+      { text: 'user.amount = user.amount.add(_amount); ', type: 'plain' },
+      { text: '// 3. 增加用户质押量', type: 'comment' },
     ],
   },
   {
     id: 'line-d-10', indent: 1,
     tokens: [
-      { text: 'user.rewardDebt = user.amount', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(pool.accSushiPerShare)  ', type: 'plain' },
-      { text: '// ×acc: 重新计算份额', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-d-10b', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(1e12);  ', type: 'plain' },
-      { text: '// ÷1e12: 还原精度 → 新的rewardDebt快照', type: 'comment' },
+      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
+      { text: '// 4. 新快照 = 新份额×acc÷精度', type: 'comment' },
     ],
   },
   { id: 'line-d-11', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
@@ -135,87 +95,48 @@ const withdrawLines: LineDef[] = [
   {
     id: 'line-w-2', indent: 1,
     tokens: [
-      { text: 'PoolInfo ', type: 'plain' },
-      { text: 'storage ', type: 'keyword' },
-      { text: 'pool = poolInfo[_pid];', type: 'plain' },
+      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
     id: 'line-w-3', indent: 1,
     tokens: [
-      { text: 'UserInfo ', type: 'plain' },
-      { text: 'storage ', type: 'keyword' },
-      { text: 'user = userInfo[_pid][msg.sender];', type: 'plain' },
+      { text: 'UserInfo storage user = userInfo[_pid][msg.sender];', type: 'plain' },
     ],
   },
   {
     id: 'line-w-4', indent: 1,
     tokens: [
-      { text: 'updatePool', type: 'func' },
-      { text: '(_pid); ', type: 'plain' },
+      { text: 'updatePool(_pid); ', type: 'plain' },
       { text: '// 1. 同步全局水位', type: 'comment' },
     ],
   },
   {
     id: 'line-w-5', indent: 1,
     tokens: [
-      { text: 'uint256 pending = user.amount', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(pool.accSushiPerShare)  ', type: 'plain' },
-      { text: '// ×acc: 计算用户应得总份额', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-5b', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(1e12)  ', type: 'plain' },
-      { text: '// ÷1e12: 还原精度(12位小数)', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-5c', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.sub', type: 'func' },
-      { text: '(user.rewardDebt);  ', type: 'plain' },
-      { text: '// -debt: 减去已结算的负债', type: 'comment' },
+      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt); ', type: 'plain' },
+      { text: '// pending = 份额×acc÷精度 - 旧负债', type: 'comment' },
     ],
   },
   {
     id: 'line-w-6', indent: 1,
     tokens: [
-      { text: 'safeSushiTransfer', type: 'func' },
-      { text: '(msg.sender, pending); ', type: 'plain' },
+      { text: 'safeSushiTransfer(msg.sender, pending); ', type: 'plain' },
       { text: '// 2. 发放旧账', type: 'comment' },
     ],
   },
   {
     id: 'line-w-7', indent: 1,
     tokens: [
-      { text: 'user.amount = user.amount', type: 'plain' },
-      { text: '.sub', type: 'func' },
-      { text: '(_amount);  ', type: 'plain' },
-      { text: '// -= _amount: 减少用户质押量', type: 'comment' },
+      { text: 'user.amount = user.amount.sub(_amount); ', type: 'plain' },
+      { text: '// 3. 减少用户质押量', type: 'comment' },
     ],
   },
   {
     id: 'line-w-8', indent: 1,
     tokens: [
-      { text: 'user.rewardDebt = user.amount', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(pool.accSushiPerShare)  ', type: 'plain' },
-      { text: '// ×acc: 重新计算份额', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-w-8b', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(1e12);  ', type: 'plain' },
-      { text: '// ÷1e12: 还原精度 → 新的rewardDebt快照', type: 'comment' },
+      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
+      { text: '// 4. 新快照 = 新份额×acc÷精度', type: 'comment' },
     ],
   },
   { id: 'line-w-9', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
@@ -235,94 +156,49 @@ const updatePoolLines: LineDef[] = [
   {
     id: 'line-u-2', indent: 1,
     tokens: [
-      { text: 'PoolInfo ', type: 'plain' },
-      { text: 'storage ', type: 'keyword' },
-      { text: 'pool = poolInfo[_pid];', type: 'plain' },
+      { text: 'PoolInfo storage pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
     id: 'line-u-3', indent: 1,
     tokens: [
-      { text: 'if ', type: 'keyword' },
-      { text: '(block.number <= pool.lastRewardBlock) ', type: 'plain' },
-      { text: 'return;', type: 'keyword' },
-      { text: ' // 无新区块则跳过', type: 'comment' },
+      { text: 'if (block.number <= pool.lastRewardBlock) return; ', type: 'plain' },
+      { text: '// 无新区块则跳过', type: 'comment' },
     ],
   },
   {
     id: 'line-u-4', indent: 1,
     tokens: [
-      { text: 'uint256 lpSupply = pool.lpToken', type: 'plain' },
-      { text: '.balanceOf', type: 'func' },
-      { text: '(address(this));  ', type: 'plain' },
-      { text: '// 查询当前池子总质押量', type: 'comment' },
+      { text: 'uint256 lpSupply = pool.lpToken.balanceOf(address(this)); ', type: 'plain' },
+      { text: '// 查询池子总质押量', type: 'comment' },
     ],
   },
   {
     id: 'line-u-5', indent: 1,
     tokens: [
-      { text: 'uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);', type: 'plain' },
-      { text: ' // 区块差值', type: 'comment' },
+      { text: 'uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number); ', type: 'plain' },
+      { text: '// 区块差值', type: 'comment' },
     ],
   },
   {
     id: 'line-u-6', indent: 1,
     tokens: [
-      { text: 'uint256 sushiReward = multiplier', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(sushiPerBlock)  ', type: 'plain' },
-      { text: '// ×每块产出', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-6b', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(pool.allocPoint)  ', type: 'plain' },
-      { text: '// ×池子权重', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-6c', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(totalAllocPoint);  ', type: 'plain' },
-      { text: '// ÷总权重 = 本池奖励', type: 'comment' },
+      { text: 'uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint); ', type: 'plain' },
+      { text: '// 区块差×每块产出×池权重÷总权重', type: 'comment' },
     ],
   },
   {
     id: 'line-u-7', indent: 1,
     tokens: [
-      { text: 'pool.accSushiPerShare = pool.accSushiPerShare', type: 'plain' },
-      { text: '.add', type: 'func' },
-      { text: '(sushiReward', type: 'plain' },
-    ],
-  },
-  {
-    id: 'line-u-7b', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.mul', type: 'func' },
-      { text: '(1e12)  ', type: 'plain' },
-      { text: '// ×1e12: 扩大精度防止除法丢失', type: 'comment' },
-    ],
-  },
-  {
-    id: 'line-u-7c', indent: 1,
-    tokens: [
-      { text: '    ', type: 'plain' },
-      { text: '.div', type: 'func' },
-      { text: '(lpSupply));  ', type: 'plain' },
-      { text: '// ÷总质押 = 每股分红累加', type: 'comment' },
+      { text: 'pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply)); ', type: 'plain' },
+      { text: '// acc += 奖励×精度÷总质押(每股分红)', type: 'comment' },
     ],
   },
   {
     id: 'line-u-8', indent: 1,
     tokens: [
-      { text: 'pool.lastRewardBlock = block.number;', type: 'plain' },
-      { text: ' // 记录最新区块', type: 'comment' },
+      { text: 'pool.lastRewardBlock = block.number; ', type: 'plain' },
+      { text: '// 记录最新区块', type: 'comment' },
     ],
   },
   { id: 'line-u-9', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
@@ -370,28 +246,14 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
         const container = codeRef.current;
         const containerRect = container.getBoundingClientRect();
         const elementRect = el.getBoundingClientRect();
-        
-        // Calculate the element's position relative to the container
         const elementRelativeTop = elementRect.top - containerRect.top;
-
-        
-        // Calculate current scroll position and container dimensions
         const currentScrollTop = container.scrollTop;
         const containerHeight = container.clientHeight;
-        
-        // Calculate the desired scroll position to center the element
         const targetScrollTop = currentScrollTop + elementRelativeTop - (containerHeight / 2) + (elementRect.height / 2);
-        
-        // Ensure we don't scroll beyond bounds
         const maxScrollTop = container.scrollHeight - containerHeight;
         const clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScrollTop));
-        
-        // Only scroll if there's a meaningful difference
         if (Math.abs(clampedScrollTop - currentScrollTop) > 10) {
-          container.scrollTo({
-            top: clampedScrollTop,
-            behavior: 'smooth'
-          });
+          container.scrollTo({ top: clampedScrollTop, behavior: 'smooth' });
         }
       }
     }
@@ -429,7 +291,6 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
       </div>
       <div ref={codeRef} className="flex-1 overflow-y-auto p-2">
         <pre className="text-[13px] leading-relaxed">
-          {/* updatePool function */}
           <div className="mb-4">
             {updatePoolLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
@@ -437,8 +298,6 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
               </div>
             ))}
           </div>
-
-          {/* deposit function */}
           <div className="mb-4">
             {depositLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
@@ -446,8 +305,6 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
               </div>
             ))}
           </div>
-
-          {/* withdraw function */}
           <div>
             {withdrawLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
