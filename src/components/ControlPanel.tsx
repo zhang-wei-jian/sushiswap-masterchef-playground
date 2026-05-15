@@ -147,7 +147,7 @@ export default function ControlPanel({
           {Object.keys(users).map((name) => (
             <button
               key={name}
-              onClick={() => { if (!isExecuting) { stopAutoPlay(); onSwitchUser(name); onClearSteps(); } }}
+              onClick={() => { if (!isExecuting) { stopAutoPlay(); onSwitchUser(name); } }}
               disabled={isExecuting}
               className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
                 currentUser === name

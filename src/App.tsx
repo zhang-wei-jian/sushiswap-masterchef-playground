@@ -32,9 +32,9 @@ export default function App() {
     users,
     currentUser,
     setCurrentUser,
-    steps,
+    userSteps,
     currentStepIndex,
-    setCurrentStepIndex,
+    setCurrentUserStepIndex,
     isExecuting,
     logs,
     nextBlock,
@@ -43,6 +43,8 @@ export default function App() {
     clearSteps,
     getPendingSushi,
   } = useMasterChef();
+
+  const steps = userSteps[currentUser] || [];
 
   const [tokenFly, setTokenFly] = useState({ active: false, x: 0, y: 0 });
   const prevWalletRef = useRef(0);
@@ -83,7 +85,7 @@ export default function App() {
           onRunTransaction={runTransaction}
           onNextBlock={nextBlock}
           onReset={reset}
-          onSetCurrentStepIndex={setCurrentStepIndex}
+          onSetCurrentStepIndex={setCurrentUserStepIndex}
           onClearSteps={clearSteps}
         />
 

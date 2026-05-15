@@ -54,8 +54,8 @@ export function useMasterChef() {
 
   const [users, setUsers] = useState<Record<string, UserState>>(createInitialUsers());
   const [currentUser, setCurrentUser] = useState('Alice');
-  const [steps, setSteps] = useState<ExecutionStep[]>([]);
-  const [currentStepIndex, setCurrentStepIndex] = useState(-1);
+  const [userSteps, setUserSteps] = useState<Record<string, ExecutionStep[]>>({});
+  const [userStepIndex, setUserStepIndex] = useState<Record<string, number>>({});
   const [isExecuting, setIsExecuting] = useState(false);
   const [logs, setLogs] = useState<string[]>(['等待操作...']);
   const addLog = useCallback((msg: string) => {
@@ -107,7 +107,7 @@ export function useMasterChef() {
   const runTransaction = useCallback(async (type: OperationType, amount: number) => {
     if (isExecuting) return;
     setIsExecuting(true);
-    setSteps([]);
+    setUserSteps(prev => ({ ...prev, [currentUser]: [] }));
 
     const user = users[currentUser];
     const newSteps: ExecutionStep[] = [];
@@ -167,7 +167,7 @@ export function useMasterChef() {
       if (currentUserState.amount < amount) {
         addLog(`错误: 余额不足! amount=${currentUserState.amount}, withdraw=${amount}`);
         setTimeout(() => setIsExecuting(false), 0);
-        setSteps(newSteps);
+        setUserSteps(prev => ({ ...prev, [currentUser]: newSteps }));
         return;
       }
       currentUserState.amount -= amount;
@@ -187,7 +187,8 @@ export function useMasterChef() {
       ...prev,
       [currentUser]: currentUserState,
     }));
-    setSteps(newSteps);
+    setUserSteps(prev => ({ ...prev, [currentUser]: newSteps }));
+    setUserStepIndex(prev => ({ ...prev, [currentUser]: 0 }));
 
     addLog(`${type}(${amount}) 执行完毕。`);
     setTimeout(() => setIsExecuting(false), 0);
@@ -203,24 +204,28 @@ export function useMasterChef() {
       sushiPerBlock: SUSHI_PER_BLOCK,
     });
     setUsers(createInitialUsers());
-    setSteps([]);
-    setCurrentStepIndex(-1);
+    setUserSteps({});
+    setUserStepIndex({});
     setLogs(['等待操作...']);
   }, [isExecuting]);
 
   const clearSteps = useCallback(() => {
-    setSteps([]);
-    setCurrentStepIndex(-1);
-  }, []);
+    setUserSteps(prev => ({ ...prev, [currentUser]: [] }));
+    setUserStepIndex(prev => ({ ...prev, [currentUser]: -1 }));
+  }, [currentUser]);
+
+  const setCurrentUserStepIndex = useCallback((idx: number) => {
+    setUserStepIndex(prev => ({ ...prev, [currentUser]: idx }));
+  }, [currentUser]);
 
   return {
     globalState,
     users,
     currentUser,
     setCurrentUser,
-    steps,
-    currentStepIndex,
-    setCurrentStepIndex,
+    userSteps,
+    currentStepIndex: (userStepIndex[currentUser] ?? -1),
+    setCurrentUserStepIndex,
     isExecuting,
     logs,
     nextBlock,
