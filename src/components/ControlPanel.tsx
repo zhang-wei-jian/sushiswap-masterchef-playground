@@ -50,7 +50,7 @@ export default function ControlPanel({
 }: ControlPanelProps) {
   const [amount, setAmount] = useState(100);
   const [autoPlay, setAutoPlay] = useState(false);
-  const [autoSpeed, setAutoSpeed] = useState(700);
+  const [autoSpeed, setAutoSpeed] = useState(300);
   const autoPlayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevIsExecutingRef = useRef(false);
   const user = users[currentUser];
@@ -327,7 +327,7 @@ export default function ControlPanel({
         {steps.length === 0 ? (
           <p className="text-xs text-gray-500 italic">暂无步骤记录</p>
         ) : (
-          <div className="max-h-64 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+          <div className="max-h-96 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
             {steps.map((s, i) => (
               <div
                 key={i}

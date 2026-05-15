@@ -62,6 +62,23 @@ export function useMasterChef() {
     setLogs(prev => [...prev, msg]);
   }, []);
 
+  const executeUpdatePool = useCallback((
+    currentGlobal: GlobalState,
+    targetBlock: number
+  ): { newGlobal: GlobalState; accDelta: number } => {
+    let newGlobal = { ...currentGlobal };
+    const multiplier = targetBlock - newGlobal.lastRewardBlock;
+
+    if (multiplier > 0 && newGlobal.lpSupply > 0) {
+      const reward = multiplier * newGlobal.sushiPerBlock;
+      const accDelta = (reward * PRECISION) / newGlobal.lpSupply;
+      newGlobal.accSushiPerShare += accDelta;
+      return { newGlobal, accDelta };
+    }
+
+    return { newGlobal, accDelta: 0 };
+  }, []);
+
   const calculateTempAcc = useCallback((state: GlobalState, targetBlock: number) => {
     let tempAcc = state.accSushiPerShare;
     if (targetBlock > state.lastRewardBlock && state.lpSupply > 0) {
@@ -86,23 +103,6 @@ export function useMasterChef() {
     setGlobalState(prev => ({ ...prev, block: prev.block + 1 }));
     addLog(`区块增加到 ${globalState.block + 1}`);
   }, [isExecuting, globalState.block, addLog]);
-
-  const executeUpdatePool = useCallback((
-    currentGlobal: GlobalState,
-    targetBlock: number
-  ): { newGlobal: GlobalState; accDelta: number } => {
-    let newGlobal = { ...currentGlobal };
-    const multiplier = targetBlock - newGlobal.lastRewardBlock;
-
-    if (multiplier > 0 && newGlobal.lpSupply > 0) {
-      const reward = multiplier * newGlobal.sushiPerBlock;
-      const accDelta = (reward * PRECISION) / newGlobal.lpSupply;
-      newGlobal.accSushiPerShare += accDelta;
-      return { newGlobal, accDelta };
-    }
-
-    return { newGlobal, accDelta: 0 };
-  }, []);
 
   const runTransaction = useCallback(async (type: OperationType, amount: number) => {
     if (isExecuting) return;

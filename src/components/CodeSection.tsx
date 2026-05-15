@@ -293,6 +293,15 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
       </div>
       <div ref={codeRef} className="flex-1 overflow-y-auto p-2">
         <pre className="text-[13px] leading-relaxed">
+          {/* updatePool function */}
+          <div className="mb-4">
+            {updatePoolLines.map((line) => (
+              <div key={line.id} data-line-id={line.id}>
+                <CodeLine line={line} isActive={activeLineId === line.id} />
+              </div>
+            ))}
+          </div>
+
           {/* deposit function */}
           <div className="mb-4">
             {depositLines.map((line) => (
@@ -303,17 +312,8 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
           </div>
 
           {/* withdraw function */}
-          <div className="mb-4">
-            {withdrawLines.map((line) => (
-              <div key={line.id} data-line-id={line.id}>
-                <CodeLine line={line} isActive={activeLineId === line.id} />
-              </div>
-            ))}
-          </div>
-
-          {/* updatePool function */}
           <div>
-            {updatePoolLines.map((line) => (
+            {withdrawLines.map((line) => (
               <div key={line.id} data-line-id={line.id}>
                 <CodeLine line={line} isActive={activeLineId === line.id} />
               </div>
