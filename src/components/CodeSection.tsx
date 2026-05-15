@@ -19,7 +19,7 @@ const depositLines: LineDef[] = [
     tokens: [
       { text: 'function ', type: 'keyword' },
       { text: 'deposit', type: 'func' },
-      { text: '(uint256 _amount) ', type: 'plain' },
+      { text: '(uint256 _pid, uint256 _amount) ', type: 'plain' },
       { text: 'public', type: 'keyword' },
       { text: ' {', type: 'plain' },
     ],
@@ -29,7 +29,7 @@ const depositLines: LineDef[] = [
     tokens: [
       { text: 'PoolInfo ', type: 'plain' },
       { text: 'storage ', type: 'keyword' },
-      { text: 'pool = poolInfo[0];', type: 'plain' },
+      { text: 'pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
@@ -37,14 +37,14 @@ const depositLines: LineDef[] = [
     tokens: [
       { text: 'UserInfo ', type: 'plain' },
       { text: 'storage ', type: 'keyword' },
-      { text: 'user = userInfo[msg.sender];', type: 'plain' },
+      { text: 'user = userInfo[_pid][msg.sender];', type: 'plain' },
     ],
   },
   {
     id: 'line-d-4', indent: 1,
     tokens: [
       { text: 'updatePool', type: 'func' },
-      { text: '(); ', type: 'plain' },
+      { text: '(_pid); ', type: 'plain' },
       { text: '// 1. 同步全局水位', type: 'comment' },
     ],
   },
@@ -58,13 +58,13 @@ const depositLines: LineDef[] = [
   {
     id: 'line-d-6', indent: 2,
     tokens: [
-      { text: 'uint256 pending = (user.amount * pool.acc) - user.rewardDebt;', type: 'plain' },
+      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt);', type: 'plain' },
     ],
   },
   {
     id: 'line-d-7', indent: 2,
     tokens: [
-      { text: 'safeTransfer', type: 'func' },
+      { text: 'safeSushiTransfer', type: 'func' },
       { text: '(msg.sender, pending); ', type: 'plain' },
       { text: '// 2. 发放旧账', type: 'comment' },
     ],
@@ -73,14 +73,14 @@ const depositLines: LineDef[] = [
   {
     id: 'line-d-9', indent: 1,
     tokens: [
-      { text: 'user.amount += _amount; ', type: 'plain' },
+      { text: 'user.amount = user.amount.add(_amount); ', type: 'plain' },
       { text: '// 3. 更新个人股份', type: 'comment' },
     ],
   },
   {
     id: 'line-d-10', indent: 1,
     tokens: [
-      { text: 'user.rewardDebt = user.amount * pool.acc; ', type: 'plain' },
+      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
       { text: '// 4. 重新立快照', type: 'comment' },
     ],
   },
@@ -93,7 +93,7 @@ const withdrawLines: LineDef[] = [
     tokens: [
       { text: 'function ', type: 'keyword' },
       { text: 'withdraw', type: 'func' },
-      { text: '(uint256 _amount) ', type: 'plain' },
+      { text: '(uint256 _pid, uint256 _amount) ', type: 'plain' },
       { text: 'public', type: 'keyword' },
       { text: ' {', type: 'plain' },
     ],
@@ -103,7 +103,7 @@ const withdrawLines: LineDef[] = [
     tokens: [
       { text: 'PoolInfo ', type: 'plain' },
       { text: 'storage ', type: 'keyword' },
-      { text: 'pool = poolInfo[0];', type: 'plain' },
+      { text: 'pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
@@ -111,27 +111,27 @@ const withdrawLines: LineDef[] = [
     tokens: [
       { text: 'UserInfo ', type: 'plain' },
       { text: 'storage ', type: 'keyword' },
-      { text: 'user = userInfo[msg.sender];', type: 'plain' },
+      { text: 'user = userInfo[_pid][msg.sender];', type: 'plain' },
     ],
   },
   {
     id: 'line-w-4', indent: 1,
     tokens: [
       { text: 'updatePool', type: 'func' },
-      { text: '(); ', type: 'plain' },
+      { text: '(_pid); ', type: 'plain' },
       { text: '// 1. 同步全局水位', type: 'comment' },
     ],
   },
   {
     id: 'line-w-5', indent: 1,
     tokens: [
-      { text: 'uint256 pending = (user.amount * pool.acc) - user.rewardDebt;', type: 'plain' },
+      { text: 'uint256 pending = user.amount.mul(pool.accSushiPerShare).div(1e12).sub(user.rewardDebt);', type: 'plain' },
     ],
   },
   {
     id: 'line-w-6', indent: 1,
     tokens: [
-      { text: 'safeTransfer', type: 'func' },
+      { text: 'safeSushiTransfer', type: 'func' },
       { text: '(msg.sender, pending); ', type: 'plain' },
       { text: '// 2. 发放旧账', type: 'comment' },
     ],
@@ -139,14 +139,14 @@ const withdrawLines: LineDef[] = [
   {
     id: 'line-w-7', indent: 1,
     tokens: [
-      { text: 'user.amount -= _amount; ', type: 'plain' },
+      { text: 'user.amount = user.amount.sub(_amount); ', type: 'plain' },
       { text: '// 3. 减少个人股份', type: 'comment' },
     ],
   },
   {
     id: 'line-w-8', indent: 1,
     tokens: [
-      { text: 'user.rewardDebt = user.amount * pool.acc; ', type: 'plain' },
+      { text: 'user.rewardDebt = user.amount.mul(pool.accSushiPerShare).div(1e12); ', type: 'plain' },
       { text: '// 4. 重新立快照', type: 'comment' },
     ],
   },
@@ -159,37 +159,59 @@ const updatePoolLines: LineDef[] = [
     tokens: [
       { text: 'function ', type: 'keyword' },
       { text: 'updatePool', type: 'func' },
-      { text: '() ', type: 'plain' },
-      { text: 'internal', type: 'keyword' },
+      { text: '(uint256 _pid) ', type: 'plain' },
+      { text: 'public', type: 'keyword' },
       { text: ' {', type: 'plain' },
     ],
   },
   {
     id: 'line-u-2', indent: 1,
     tokens: [
-      { text: 'uint256 lpSupply = lpToken.balanceOf(address(this));', type: 'plain' },
+      { text: 'PoolInfo ', type: 'plain' },
+      { text: 'storage ', type: 'keyword' },
+      { text: 'pool = poolInfo[_pid];', type: 'plain' },
     ],
   },
   {
     id: 'line-u-3', indent: 1,
     tokens: [
-      { text: 'uint256 reward = (block.number - lastBlock) * sushiPerBlock;', type: 'plain' },
+      { text: 'if ', type: 'keyword' },
+      { text: '(block.number <= pool.lastRewardBlock) ', type: 'plain' },
+      { text: 'return;', type: 'keyword' },
     ],
   },
   {
     id: 'line-u-4', indent: 1,
     tokens: [
-      { text: 'pool.acc += (reward * 1e12) / lpSupply; ', type: 'plain' },
-      { text: '// 累加每股分红', type: 'comment' },
+      { text: 'uint256 lpSupply = pool.lpToken.balanceOf(address(this));', type: 'plain' },
     ],
   },
   {
     id: 'line-u-5', indent: 1,
     tokens: [
-      { text: 'pool.lastBlock = block.number;', type: 'plain' },
+      { text: 'uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);', type: 'plain' },
     ],
   },
-  { id: 'line-u-6', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
+  {
+    id: 'line-u-6', indent: 1,
+    tokens: [
+      { text: 'uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', type: 'plain' },
+    ],
+  },
+  {
+    id: 'line-u-7', indent: 1,
+    tokens: [
+      { text: 'pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));', type: 'plain' },
+      { text: ' // 累加每股分红', type: 'comment' },
+    ],
+  },
+  {
+    id: 'line-u-8', indent: 1,
+    tokens: [
+      { text: 'pool.lastRewardBlock = block.number;', type: 'plain' },
+    ],
+  },
+  { id: 'line-u-9', indent: 0, tokens: [{ text: '}', type: 'plain' }] },
 ];
 
 function CodeLine({ line, isActive }: { line: LineDef; isActive: boolean }) {

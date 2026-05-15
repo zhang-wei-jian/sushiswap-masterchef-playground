@@ -13,18 +13,21 @@ interface VarAccess {
 
 const LINE_VAR_MAP: Record<string, VarAccess[]> = {
   // updatePool
-  'line-u-1': [
+  'line-u-2': [
     { varName: 'lastRewardBlock', type: 'read' },
-    { varName: 'lpSupply', type: 'read' },
-    { varName: 'sushiPerBlock', type: 'read' },
   ],
   'line-u-4': [
-    { varName: 'lastRewardBlock', type: 'read' },
     { varName: 'lpSupply', type: 'read' },
-    { varName: 'sushiPerBlock', type: 'read' },
-    { varName: 'accSushiPerShare', type: 'write' },
   ],
   'line-u-5': [
+    { varName: 'lastRewardBlock', type: 'read' },
+    { varName: 'sushiPerBlock', type: 'read' },
+  ],
+  'line-u-7': [
+    { varName: 'accSushiPerShare', type: 'write' },
+    { varName: 'lpSupply', type: 'read' },
+  ],
+  'line-u-8': [
     { varName: 'lastRewardBlock', type: 'write' },
   ],
 
