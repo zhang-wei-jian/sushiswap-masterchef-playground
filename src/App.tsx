@@ -4,6 +4,7 @@ import { useMasterChef } from './hooks/useMasterChef';
 import CodeSection from './components/CodeSection';
 import ControlPanel from './components/ControlPanel';
 import StateCard from './components/StateCard';
+import VarArrows from './components/VarArrows';
 
 function TokenFlyAnimation({ active, x, y }: { active: boolean; x: number; y: number }) {
   return (
@@ -66,6 +67,7 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col bg-[#0d0d0d] text-white overflow-hidden">
       <TokenFlyAnimation {...tokenFly} />
+      <VarArrows activeLineId={activeLineId} />
 
       {/* 3-column grid layout */}
       <div className="flex-1 grid grid-cols-[350px_1fr_320px] gap-px bg-gray-800 overflow-hidden">

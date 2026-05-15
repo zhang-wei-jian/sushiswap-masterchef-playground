@@ -43,20 +43,24 @@ export default function StateCard({ globalState, user, currentUser, logs, curren
             label="accSushiPerShare"
             value={formatAcc(globalState.accSushiPerShare)}
             highlight={currentStepIndex >= 0}
+            varName="accSushiPerShare"
           />
           <StateRow
             label="lastRewardBlock"
             value={String(globalState.lastRewardBlock)}
             highlight={currentStepIndex >= 0}
+            varName="lastRewardBlock"
           />
           <StateRow
             label="Total LP Staked"
             value={String(globalState.lpSupply)}
             highlight={currentStepIndex >= 0}
+            varName="lpSupply"
           />
           <StateRow
             label="sushiPerBlock"
             value={String(globalState.sushiPerBlock)}
+            varName="sushiPerBlock"
           />
         </div>
       </div>
@@ -75,16 +79,19 @@ export default function StateCard({ globalState, user, currentUser, logs, curren
             label="Amount (S)"
             value={String(user.amount)}
             highlight={currentStepIndex >= 0}
+            varName="amount"
           />
           <StateRow
             label="rewardDebt (D)"
             value={formatDebt(user.rewardDebt)}
             highlight={currentStepIndex >= 0}
+            varName="rewardDebt"
           />
           <StateRow
             label="Wallet SUSHI"
             value={user.wallet.toFixed(2)}
             valueColor="text-yellow-400"
+            varName="wallet"
           />
         </div>
       </div>
@@ -115,14 +122,16 @@ function StateRow({
   value,
   highlight = false,
   valueColor = 'text-green-400',
+  varName,
 }: {
   label: string;
   value: string;
   highlight?: boolean;
   valueColor?: string;
+  varName?: string;
 }) {
   return (
-    <div className="flex justify-between items-center">
+    <div data-var={varName} className="flex justify-between items-center">
       <span className="text-xs text-gray-400 font-mono">{label}</span>
       <AnimatePresence mode="wait">
         <motion.span
