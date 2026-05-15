@@ -23,7 +23,7 @@ const updatePoolLines: CodeLine[] = [
   { id: 'line-u-3', code: '    if (block.number <= pool.lastRewardBlock) return;', comment: ' // 无新区块则跳过' },
   { id: 'line-u-4', code: '    uint256 lpSupply = pool.lpToken.balanceOf(address(this));', comment: ' // 查询池子总质押量' },
   { id: 'line-u-5', code: '    uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);', comment: ' // 区块差值' },
-  { id: 'line-u-6', code: '    uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', comment: ' // 区块差×每块产出×池权重÷总权重' },
+  { id: 'line-u-6', code: '    uint256 sushiReward = multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);', comment: ' // 区块差×每块产出×池权重÷总权重=本池奖励' },
   { id: 'line-u-7', code: '    pool.accSushiPerShare = pool.accSushiPerShare.add(sushiReward.mul(1e12).div(lpSupply));', comment: ' // acc += 奖励×精度÷总质押(每股分红)' },
   { id: 'line-u-8', code: '    pool.lastRewardBlock = block.number;', comment: ' // 记录最新区块' },
   { id: 'line-u-9', code: '}' },
