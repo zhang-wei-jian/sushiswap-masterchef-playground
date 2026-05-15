@@ -24,7 +24,6 @@ interface ControlPanelProps {
   onReset: () => void;
   onSetCurrentStepIndex: (idx: number) => void;
   onClearSteps: () => void;
-  getPendingSushi: (userName: string) => number;
 }
 
 const WALLET_COLORS: Record<string, string> = {
@@ -46,7 +45,6 @@ export default function ControlPanel({
   onReset,
   onSetCurrentStepIndex,
   onClearSteps,
-  getPendingSushi,
 }: ControlPanelProps) {
   const [amount, setAmount] = useState(100);
   const [autoPlay, setAutoPlay] = useState(false);
@@ -54,7 +52,6 @@ export default function ControlPanel({
   const autoPlayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevIsExecutingRef = useRef(false);
   const user = users[currentUser];
-  const pending = getPendingSushi(currentUser);
 
   const stopAutoPlay = useCallback(() => {
     setAutoPlay(false);
@@ -169,10 +166,6 @@ export default function ControlPanel({
           <div className="flex justify-between text-xs">
             <span className="text-gray-400">user.amount:</span>
             <span className="text-white font-mono">{user.amount}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400">pendingSushi:</span>
-            <span className="text-red-500 font-mono">{pending.toFixed(2)}</span>
           </div>
         </div>
       </div>

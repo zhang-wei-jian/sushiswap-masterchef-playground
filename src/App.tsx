@@ -85,7 +85,6 @@ export default function App() {
           onReset={reset}
           onSetCurrentStepIndex={setCurrentStepIndex}
           onClearSteps={clearSteps}
-          getPendingSushi={getPendingSushi}
         />
 
         {/* Center: Code Viewer */}
@@ -100,6 +99,7 @@ export default function App() {
           user={users[currentUser]}
           currentUser={currentUser}
           onSwitchUser={setCurrentUser}
+          pendingSushi={getPendingSushi(currentUser)}
           logs={logs}
           currentStepIndex={currentStepIndex}
         />

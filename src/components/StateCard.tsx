@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, User, ScrollText } from 'lucide-react';
+import { Globe, User, ScrollText, Gift } from 'lucide-react';
 import type { GlobalState, UserState } from '../hooks/useMasterChef';
 
 interface StateCardProps {
@@ -8,6 +8,7 @@ interface StateCardProps {
   user: UserState;
   currentUser: string;
   onSwitchUser: (user: string) => void;
+  pendingSushi: number;
   logs: string[];
   currentStepIndex: number;
 }
@@ -22,7 +23,7 @@ function formatDebt(val: number): string {
   return (val / PRECISION).toFixed(4);
 }
 
-export default function StateCard({ globalState, user, currentUser, onSwitchUser, logs, currentStepIndex }: StateCardProps) {
+export default function StateCard({ globalState, user, currentUser, onSwitchUser, pendingSushi, logs, currentStepIndex }: StateCardProps) {
   const logBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,6 +76,10 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
             valueColor="text-yellow-400"
             varName="wallet"
           />
+          <div className="flex justify-between text-xs items-center">
+            <span className="text-gray-400 flex items-center gap-1"><Gift size={12} className="text-yellow-500" /> pendingSushi:</span>
+            <span className="text-red-500 font-mono font-bold">{pendingSushi.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 
