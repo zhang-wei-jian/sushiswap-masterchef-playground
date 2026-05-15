@@ -110,6 +110,12 @@ export function useMasterChef() {
     setUserSteps(prev => ({ ...prev, [currentUser]: [] }));
 
     const user = users[currentUser];
+    if (type === 'withdraw' && user.amount <= 0) {
+      addLog(`错误: 未质押过，无法提取!`);
+      setIsExecuting(false);
+      return;
+    }
+
     const newSteps: ExecutionStep[] = [];
     let currentGlobal = { ...globalState };
     let currentUserState = { ...user };
