@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, User, ScrollText, Gift } from 'lucide-react';
+import { Globe, User, ScrollText, Gift, Wallet } from 'lucide-react';
 import type { GlobalState, UserState } from '../hooks/useMasterChef';
 
 interface StateCardProps {
@@ -70,12 +70,19 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
             highlight={currentStepIndex >= 0}
             varName="rewardDebt"
           />
-          <StateRow
-            label="Wallet SUSHI"
-            value={user.wallet.toFixed(2)}
-            valueColor="text-yellow-400"
-            varName="wallet"
-          />
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-400 flex items-center gap-1"><Wallet size={12} className="text-yellow-500" /> Wallet SUSHI:</span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={user.wallet.toFixed(2)}
+                animate={{ color: '#eab308' }}
+                transition={{ duration: 0.3 }}
+                className="text-xs font-mono font-bold text-yellow-400"
+              >
+                {user.wallet.toFixed(2)}
+              </motion.span>
+            </AnimatePresence>
+          </div>
           <div className="flex justify-between text-xs items-center">
             <span className="text-gray-400 flex items-center gap-1"><Gift size={12} className="text-yellow-500" /> pendingSushi:</span>
             <span className="text-red-500 font-mono font-bold">{pendingSushi.toFixed(2)}</span>
