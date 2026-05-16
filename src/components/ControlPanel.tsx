@@ -8,6 +8,7 @@ import {
   Play,
   Pause,
   Coins,
+  Sprout,
 } from 'lucide-react';
 import type { GlobalState, UserState, OperationType } from '../hooks/useMasterChef';
 
@@ -20,6 +21,7 @@ interface ControlPanelProps {
   currentStepIndex: number;
   onSwitchUser: (name: string) => void;
   onRunTransaction: (type: OperationType, amount: number) => void;
+  onHarvest: () => void;
   onNextBlock: () => void;
   onReset: () => void;
   onSetCurrentStepIndex: (idx: number) => void;
@@ -41,6 +43,7 @@ export default function ControlPanel({
   currentStepIndex,
   onSwitchUser,
   onRunTransaction,
+  onHarvest,
   onNextBlock,
   onReset,
   onSetCurrentStepIndex,
@@ -200,6 +203,14 @@ export default function ControlPanel({
             Withdraw
           </button>
         </div>
+        <button
+          onClick={() => { onHarvest(); }}
+          disabled={isExecuting || user.amount <= 0}
+          className="w-full flex items-center justify-center gap-1.5 mt-2 px-3 py-2 rounded-lg border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <Sprout size={14} />
+          Harvest Rewards
+        </button>
       </div>
 
       {/* Step Controls */}

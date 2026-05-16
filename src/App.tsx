@@ -6,21 +6,43 @@ import ControlPanel from './components/ControlPanel';
 import StateCard from './components/StateCard';
 import VarArrows from './components/VarArrows';
 
-function TokenFlyAnimation({ active, x, y }: { active: boolean; x: number; y: number }) {
+const TRANSFER_LINES = ['line-d-6', 'line-w-6'];
+
+function CoinParticle({ delay, offsetX, offsetY, scale }: { delay: number; offsetX: number; offsetY: number; scale: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 1, x: 0, y: 0, scale }}
+      animate={{ opacity: 0, x: offsetX, y: offsetY, scale: scale * 0.2 }}
+      transition={{ duration: 1 + Math.random() * 0.5, delay, ease: 'easeOut' }}
+      className="absolute pointer-events-none"
+    >
+      <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center text-[9px] font-bold text-black shadow-lg shadow-yellow-400/40">
+        $
+      </div>
+    </motion.div>
+  );
+}
+
+function CoinExplosion({ active }: { active: boolean }) {
+  const coins = [
+    { delay: 0, ox: -120, oy: -80, s: 1 },
+    { delay: 0.05, ox: 100, oy: -100, s: 0.9 },
+    { delay: 0.08, ox: -60, oy: -120, s: 0.8 },
+    { delay: 0.03, ox: 140, oy: -70, s: 1.1 },
+    { delay: 0.1, ox: 0, oy: -130, s: 0.7 },
+    { delay: 0.06, ox: -150, oy: -40, s: 0.85 },
+    { delay: 0.12, ox: 80, oy: -110, s: 0.95 },
+    { delay: 0.07, ox: -30, oy: -90, s: 1.05 },
+  ];
+
   return (
     <AnimatePresence>
       {active && (
-        <motion.div
-          initial={{ opacity: 1, scale: 1, x, y }}
-          animate={{ opacity: 0, scale: 0.3, x: x + 200, y: y - 100 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="fixed z-50 pointer-events-none"
-        >
-          <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-[10px] font-bold text-black shadow-lg shadow-yellow-400/30">
-            $
-          </div>
-        </motion.div>
+        <div className="fixed z-50 pointer-events-none" style={{ left: '50%', top: '50%' }}>
+          {coins.map((c, i) => (
+            <CoinParticle key={i} delay={c.delay} offsetX={c.ox} offsetY={c.oy} scale={c.s} />
+          ))}
+        </div>
       )}
     </AnimatePresence>
   );
@@ -46,21 +68,21 @@ export default function App() {
 
   const steps = userSteps[currentUser] || [];
 
-  const [tokenFly, setTokenFly] = useState({ active: false, x: 0, y: 0 });
-  const prevWalletRef = useRef(0);
-
-  useEffect(() => {
-    const newWallet = users[currentUser].wallet;
-    if (newWallet > prevWalletRef.current && prevWalletRef.current > 0) {
-      setTokenFly({ active: true, x: window.innerWidth / 2 - 12, y: window.innerHeight / 2 });
-      setTimeout(() => setTokenFly({ active: false, x: 0, y: 0 }), 900);
-    }
-    prevWalletRef.current = newWallet;
-  }, [users, currentUser]);
-
   const activeLineId = currentStepIndex >= 0 && steps[currentStepIndex]
     ? steps[currentStepIndex].lineId
     : null;
+
+  const isTransferStep = activeLineId !== null && TRANSFER_LINES.includes(activeLineId);
+  const [coinActive, setCoinActive] = useState(false);
+  const prevTransferRef = useRef(false);
+
+  useEffect(() => {
+    if (isTransferStep && !prevTransferRef.current) {
+      setCoinActive(true);
+      setTimeout(() => setCoinActive(false), 1500);
+    }
+    prevTransferRef.current = isTransferStep;
+  }, [isTransferStep]);
 
   const activeStepKey = currentStepIndex >= 0 && steps[currentStepIndex]
     ? steps[currentStepIndex].step
@@ -68,7 +90,7 @@ export default function App() {
 
   return (
     <div className="h-screen flex flex-col bg-[#0d0d0d] text-white overflow-hidden">
-      <TokenFlyAnimation {...tokenFly} />
+      <CoinExplosion active={coinActive} />
       <VarArrows activeLineId={activeLineId} />
 
       {/* GitHub Logo */}
@@ -95,6 +117,7 @@ export default function App() {
           currentStepIndex={currentStepIndex}
           onSwitchUser={setCurrentUser}
           onRunTransaction={runTransaction}
+          onHarvest={() => runTransaction('deposit', 0)}
           onNextBlock={nextBlock}
           onReset={reset}
           onSetCurrentStepIndex={setCurrentUserStepIndex}
