@@ -140,17 +140,21 @@ export function useMasterChef() {
     pushStep('A', `line-${prefix}-4`, `调用 updatePool()`);
     pushStep('A', 'line-u-1', `进入 updatePool`);
 
-    const { newGlobal, accDelta } = executeUpdatePool(currentGlobal, targetBlock);
-    currentGlobal = newGlobal;
-
-    if (accDelta > 0) {
-      pushStep('A', 'line-u-7', `累加新水位: acc += ${accDelta / PRECISION}`);
+    if (targetBlock <= currentGlobal.lastRewardBlock) {
+      pushStep('A', 'line-u-3', `block(${targetBlock}) <= lastRewardBlock(${currentGlobal.lastRewardBlock}), 直接返回`);
     } else {
-      pushStep('A', 'line-u-7', `无新区块奖励或无质押者`);
-    }
+      const { newGlobal, accDelta } = executeUpdatePool(currentGlobal, targetBlock);
+      currentGlobal = newGlobal;
 
-    currentGlobal.lastRewardBlock = targetBlock;
-    pushStep('A', 'line-u-8', `更新最后区块: last = ${targetBlock}`);
+      if (accDelta > 0) {
+        pushStep('A', 'line-u-7', `累加新水位: acc += ${accDelta / PRECISION}`);
+      } else {
+        pushStep('A', 'line-u-6', `lpSupply == 0, 仅更新 lastRewardBlock`);
+      }
+
+      currentGlobal.lastRewardBlock = targetBlock;
+      pushStep('A', 'line-u-8', `更新最后区块: last = ${targetBlock}`);
+    }
 
     // Step B: Settlement
     pushStep('B', `line-${prefix}-5`, `检查旧账...`);
