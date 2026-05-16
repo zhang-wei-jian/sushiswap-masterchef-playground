@@ -165,12 +165,6 @@ export default function ControlPanel({
         </div>
 
         {/* User stats */}
-        <div className="mt-3 space-y-1">
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400">user.amount:</span>
-            <span className="text-white font-mono">{user.amount}</span>
-          </div>
-        </div>
       </div>
 
       {/* Input & Actions */}
