@@ -13,7 +13,7 @@ interface VarAccess {
 
 const LINE_VAR_MAP: Record<string, VarAccess[]> = {
   // updatePool
-  'line-u-2': [
+  'line-u-3': [
     { varName: 'lastRewardBlock', type: 'read' },
   ],
   'line-u-4': [
@@ -21,11 +21,9 @@ const LINE_VAR_MAP: Record<string, VarAccess[]> = {
   ],
   'line-u-5': [
     { varName: 'lastRewardBlock', type: 'read' },
-    { varName: 'sushiPerBlock', type: 'read' },
   ],
   'line-u-6': [
     { varName: 'sushiPerBlock', type: 'read' },
-    { varName: 'lpSupply', type: 'read' },
   ],
   'line-u-7': [
     { varName: 'accSushiPerShare', type: 'write' },
@@ -36,11 +34,6 @@ const LINE_VAR_MAP: Record<string, VarAccess[]> = {
   ],
 
   // deposit
-  'line-d-4': [
-    { varName: 'lastRewardBlock', type: 'read' },
-    { varName: 'lpSupply', type: 'read' },
-    { varName: 'accSushiPerShare', type: 'write' },
-  ],
   'line-d-5': [
     { varName: 'amount', type: 'read' },
   ],
@@ -63,11 +56,6 @@ const LINE_VAR_MAP: Record<string, VarAccess[]> = {
   ],
 
   // withdraw
-  'line-w-4': [
-    { varName: 'lastRewardBlock', type: 'read' },
-    { varName: 'lpSupply', type: 'read' },
-    { varName: 'accSushiPerShare', type: 'write' },
-  ],
   'line-w-5': [
     { varName: 'amount', type: 'read' },
     { varName: 'accSushiPerShare', type: 'read' },

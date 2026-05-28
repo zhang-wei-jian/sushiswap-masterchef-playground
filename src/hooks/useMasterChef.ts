@@ -27,7 +27,7 @@ export interface StepInfo {
 
 export type OperationType = 'deposit' | 'withdraw';
 
-export type StepKey = 'A' | 'B' | 'C' | 'D';
+export type StepKey = 'E' | 'A' | 'B' | 'C' | 'D' | 'F';
 
 export interface ExecutionStep {
   step: StepKey;
@@ -121,6 +121,15 @@ export function useMasterChef() {
     let currentUserState = { ...user };
     const targetBlock = currentGlobal.block;
 
+    // 添加"执行前"步骤
+    newSteps.push({
+      step: 'E',
+      lineId: '',
+      message: `执行前: ${type}(${amount})`,
+      globalState: { ...currentGlobal },
+      userState: { ...currentUserState },
+    });
+
     const pushStep = (step: StepKey, lineId: string, message: string) => {
       newSteps.push({
         step,
@@ -190,6 +199,15 @@ export function useMasterChef() {
     currentUserState.rewardDebt = newDebt;
     const stepDLine = type === 'deposit' ? 'line-d-10' : 'line-w-8';
     pushStep('D', stepDLine, `重置负债: rewardDebt = ${currentUserState.amount} × ${currentGlobal.accSushiPerShare / PRECISION} = ${newDebt / PRECISION}`);
+
+    // 添加"执行完毕"步骤
+    newSteps.push({
+      step: 'F',
+      lineId: '',
+      message: `执行完毕: ${type}(${amount})`,
+      globalState: { ...currentGlobal },
+      userState: { ...currentUserState },
+    });
 
     // Update state
     setGlobalState(currentGlobal);

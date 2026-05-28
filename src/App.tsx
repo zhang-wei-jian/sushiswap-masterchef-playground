@@ -72,6 +72,10 @@ export default function App() {
     ? steps[currentStepIndex].lineId
     : null;
 
+  const currentStep = currentStepIndex >= 0 && steps[currentStepIndex]
+    ? steps[currentStepIndex]
+    : null;
+
   const isTransferStep = activeLineId !== null && TRANSFER_LINES.includes(activeLineId);
   const [coinActive, setCoinActive] = useState(false);
   const prevTransferRef = useRef(false);
@@ -87,6 +91,9 @@ export default function App() {
   const activeStepKey = currentStepIndex >= 0 && steps[currentStepIndex]
     ? steps[currentStepIndex].step
     : null;
+
+  const displayGlobalState = currentStep ? currentStep.globalState : globalState;
+  const displayUserState = currentStep ? currentStep.userState : users[currentUser];
 
   return (
     <div className="h-screen flex flex-col bg-[#0d0d0d] text-white overflow-hidden">
@@ -132,8 +139,8 @@ export default function App() {
 
         {/* Right: State Boards */}
         <StateCard
-          globalState={globalState}
-          user={users[currentUser]}
+          globalState={displayGlobalState}
+          user={displayUserState}
           currentUser={currentUser}
           onSwitchUser={setCurrentUser}
           pendingSushi={getPendingSushi(currentUser)}
