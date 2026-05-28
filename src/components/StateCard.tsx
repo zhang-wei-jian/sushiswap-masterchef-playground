@@ -33,15 +33,15 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
   }, [logs]);
 
   return (
-    <section className="flex flex-col h-full bg-[#0d0d0d] border-l border-gray-800 overflow-y-auto">
+    <section className="flex flex-col h-full bg-transparent border-l border-gray-700/50 overflow-y-auto">
       {/* Header with Account Selector */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-sm font-bold text-gray-200">Accounts</h2>
           <select
             value={currentUser}
             onChange={(e) => onSwitchUser(e.target.value)}
-            className="bg-[#1a1a1a] border border-gray-700 rounded px-3 py-1.5 text-xs font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 cursor-pointer"
+            className="bg-black/50 border border-gray-700 rounded-lg px-3 py-1.5 text-xs font-mono text-yellow-400 focus:outline-none focus:border-yellow-500 cursor-pointer transition-colors duration-200"
           >
             <option value="Alice">Alice</option>
             <option value="Bob">Bob</option>
@@ -62,7 +62,7 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
               </motion.span>
             </AnimatePresence>
           </div>
-          <div className="p-1.5 rounded border-2 border-dashed border-green-500/30 bg-green-500/[0.03] group relative" title="🔍 这是前端通过 view 函数模拟计算出的'幻象利息'。此时链上账本并未真实更新，不消耗 Gas。">
+          <div className="p-1.5 rounded-lg border-2 border-dashed border-green-500/30 bg-green-500/[0.03] group relative" title="🔍 这是前端通过 view 函数模拟计算出的'幻象利息'。此时链上账本并未真实更新，不消耗 Gas。">
             <div className="flex justify-between text-xs items-center">
               <span className="text-gray-400 flex items-center gap-1"><Gift size={12} className="text-green-500/70" /> pendingSushi:</span>
               <AnimatePresence mode="wait">
@@ -81,7 +81,7 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
       </div>
 
       {/* User State */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="flex items-center gap-2 mb-3">
           <User size={16} className="text-red-500" />
           <h3 className="text-sm font-bold text-gray-200">
@@ -106,7 +106,7 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
       </div>
 
       {/* Global State */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="flex items-center gap-2 mb-3">
           <Globe size={16} className="text-blue-400" />
           <h3 className="text-sm font-bold text-gray-200">Global State</h3>
@@ -146,7 +146,7 @@ export default function StateCard({ globalState, user, currentUser, onSwitchUser
         </div>
         <div
           ref={logBoxRef}
-          className="flex-1 overflow-y-auto p-2 rounded bg-black border border-gray-800 text-[11px] font-mono text-gray-400 space-y-0.5"
+          className="flex-1 overflow-y-auto p-2 rounded-lg bg-black/50 border border-gray-700/50 text-[11px] font-mono text-gray-400 space-y-0.5"
         >
           {logs.map((log, i) => (
             <div key={i} className={i === logs.length - 1 ? 'text-green-400' : ''}>

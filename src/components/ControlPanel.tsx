@@ -122,12 +122,12 @@ export default function ControlPanel({
   };
 
   return (
-    <section className="flex flex-col h-full bg-[#0d0d0d] overflow-hidden">
+    <section className="flex flex-col h-full bg-transparent overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="flex items-center gap-2 mb-1">
           <Wallet size={18} className="text-red-500" />
-          <span className="text-sm font-bold text-red-500">MasterChef Debugger</span>
+          <span className="text-sm font-bold gradient-text">MasterChef Debugger</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">
@@ -136,7 +136,7 @@ export default function ControlPanel({
           <button
             onClick={onNextBlock}
             disabled={isExecuting}
-            className="text-xs px-3 py-1 rounded border border-green-500/50 text-green-400 hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="text-xs px-3 py-1 rounded-lg border border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20"
           >
             + Next Block
           </button>
@@ -144,7 +144,7 @@ export default function ControlPanel({
       </div>
 
       {/* Account Selector */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <p className="text-xs text-gray-400 mb-2">Accounts</p>
         <div className="flex gap-2">
           {Object.keys(users).map((name) => (
@@ -152,12 +152,12 @@ export default function ControlPanel({
               key={name}
               onClick={() => { if (!isExecuting) { stopAutoPlay(); onSwitchUser(name); } }}
               disabled={isExecuting}
-              className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+              className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-200 ${
                 currentUser === name
-                  ? 'border-red-500 text-red-500 bg-red-500/10'
-                  : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                  ? 'border-red-500 text-red-500 bg-red-500/10 shadow-lg shadow-red-500/20'
+                  : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
               } disabled:opacity-40 disabled:cursor-not-allowed`}
-              style={currentUser === name ? { borderColor: WALLET_COLORS[name], color: WALLET_COLORS[name] } : {}}
+              style={currentUser === name ? { borderColor: WALLET_COLORS[name], color: WALLET_COLORS[name], boxShadow: `0 0 20px ${WALLET_COLORS[name]}33` } : {}}
             >
               {name}
             </button>
@@ -168,7 +168,7 @@ export default function ControlPanel({
       </div>
 
       {/* Input & Actions */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="relative mb-2">
           <Coins size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
@@ -176,14 +176,14 @@ export default function ControlPanel({
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
             min={0}
-            className="w-full pl-9 pr-3 py-2 bg-black border border-gray-700 rounded-lg text-white text-sm font-mono focus:border-red-500 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm font-mono focus:border-red-500 focus:outline-none transition-colors duration-200"
           />
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => { onRunTransaction('deposit', amount); }}
             disabled={isExecuting || amount <= 0}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold hover:from-red-600 hover:to-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-red-500/30"
           >
             <ArrowDownToLine size={14} />
             Deposit
@@ -191,7 +191,7 @@ export default function ControlPanel({
           <button
             onClick={() => { onRunTransaction('withdraw', amount); }}
             disabled={isExecuting || amount <= 0}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-gray-700 text-white text-sm font-bold hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-bold hover:from-gray-700 hover:to-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-gray-500/30"
           >
             <ArrowUpFromLine size={14} />
             Withdraw
@@ -200,7 +200,7 @@ export default function ControlPanel({
         <button
           onClick={() => { onHarvest(); }}
           disabled={isExecuting || user.amount <= 0}
-          className="w-full flex items-center justify-center gap-1.5 mt-2 px-3 py-2 rounded-lg border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 mt-2 px-3 py-2 rounded-lg border border-green-500/40 text-green-400 text-sm font-bold hover:bg-green-500/20 hover:border-green-400 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20"
         >
           <Sprout size={14} />
           Harvest Rewards
@@ -208,7 +208,7 @@ export default function ControlPanel({
       </div>
 
       {/* Step Controls */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs text-gray-400">
             断点调试 {steps.length > 0 && `${currentStepIndex + 1}/${steps.length}`}
@@ -217,14 +217,14 @@ export default function ControlPanel({
             <button
               onClick={() => handleManualStep('prev')}
               disabled={currentStepIndex <= 0}
-              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-2 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-gray-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
             >
               &lt;
             </button>
             <button
               onClick={() => handleManualStep('next')}
               disabled={currentStepIndex >= steps.length - 1}
-              className="px-2 py-1 rounded text-xs text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="px-2 py-1 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-gray-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
             >
               &gt;
             </button>
@@ -235,10 +235,10 @@ export default function ControlPanel({
           <button
             onClick={autoPlay ? stopAutoPlay : startAutoPlay}
             disabled={steps.length === 0}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
               autoPlay
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-500'
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30 shadow-lg shadow-red-500/20'
+                : 'bg-gray-800/50 text-gray-300 border border-gray-700 hover:border-gray-500 hover:bg-gray-700/50'
             } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             {autoPlay ? <Pause size={12} /> : <Play size={12} />}
@@ -247,7 +247,7 @@ export default function ControlPanel({
           <select
             value={autoSpeed}
             onChange={(e) => setAutoSpeed(Number(e.target.value))}
-            className="px-2 py-1.5 rounded text-xs bg-gray-800 text-gray-300 border border-gray-700 focus:outline-none"
+            className="px-2 py-1.5 rounded-lg text-xs bg-gray-800/50 text-gray-300 border border-gray-700 focus:outline-none transition-colors duration-200"
           >
             <option value={1200}>慢 (1.2s)</option>
             <option value={700}>中 (0.7s)</option>
@@ -257,7 +257,7 @@ export default function ControlPanel({
       </div>
 
       {/* Current Step Message */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <p className="text-xs text-gray-400 mb-1">当前步骤</p>
         <AnimatePresence mode="wait">
           {steps[currentStepIndex] ? (
@@ -267,14 +267,16 @@ export default function ControlPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.08 }}
-              className="p-2 rounded bg-gray-900 border border-gray-700"
+              className="p-2 rounded-lg bg-gray-900/50 border border-gray-700/50"
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                  steps[currentStepIndex].step === 'E' ? 'bg-gray-500/20 text-gray-400' :
                   steps[currentStepIndex].step === 'A' ? 'bg-blue-500/20 text-blue-400' :
                   steps[currentStepIndex].step === 'B' ? 'bg-yellow-500/20 text-yellow-400' :
                   steps[currentStepIndex].step === 'C' ? 'bg-green-500/20 text-green-400' :
-                  'bg-purple-500/20 text-purple-400'
+                  steps[currentStepIndex].step === 'D' ? 'bg-purple-500/20 text-purple-400' :
+                  'bg-gray-500/20 text-gray-400'
                 }`}>
                   {steps[currentStepIndex].step}
                 </span>
@@ -298,11 +300,11 @@ export default function ControlPanel({
       </div>
 
       {/* Reset */}
-      <div className="px-4 py-3 border-b border-gray-800">
+      <div className="px-4 py-3 border-b border-gray-700/50">
         <button
           onClick={() => { stopAutoPlay(); onReset(); }}
           disabled={isExecuting}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs hover:border-red-500/50 hover:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
         >
           <RotateCcw size={12} />
           重置所有状态
@@ -316,7 +318,7 @@ export default function ControlPanel({
           {steps.length > 0 && (
             <button
               onClick={onClearSteps}
-              className="text-[10px] text-gray-500 hover:text-red-400 transition-colors"
+              className="text-[10px] text-gray-500 hover:text-red-400 transition-colors duration-200"
             >
               清空
             </button>
@@ -330,17 +332,19 @@ export default function ControlPanel({
               <div
                 key={i}
                 onClick={() => onSetCurrentStepIndex(i)}
-                className={`flex items-start gap-2 px-2 py-1.5 rounded cursor-pointer text-[11px] transition-colors ${
+                className={`flex items-start gap-2 px-2 py-1.5 rounded-lg cursor-pointer text-[11px] transition-all duration-200 ${
                   i === currentStepIndex
-                    ? 'bg-red-500/10 border border-red-500/30'
-                    : 'hover:bg-gray-800 border border-transparent'
+                    ? 'bg-red-500/10 border border-red-500/30 shadow-lg shadow-red-500/10'
+                    : 'hover:bg-gray-800/50 border border-transparent hover:border-gray-700/50'
                 }`}
               >
                 <span className={`shrink-0 px-1 py-0.5 rounded text-[9px] font-bold ${
+                  s.step === 'E' ? 'bg-gray-500/20 text-gray-400' :
                   s.step === 'A' ? 'bg-blue-500/20 text-blue-400' :
                   s.step === 'B' ? 'bg-yellow-500/20 text-yellow-400' :
                   s.step === 'C' ? 'bg-green-500/20 text-green-400' :
-                  'bg-purple-500/20 text-purple-400'
+                  s.step === 'D' ? 'bg-purple-500/20 text-purple-400' :
+                  'bg-gray-500/20 text-gray-400'
                 }`}>
                   {s.step}
                 </span>

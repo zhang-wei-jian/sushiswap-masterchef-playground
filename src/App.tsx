@@ -96,7 +96,7 @@ export default function App() {
   const displayUserState = currentStep ? currentStep.userState : users[currentUser];
 
   return (
-    <div className="h-screen flex flex-col bg-[#0d0d0d] text-white overflow-hidden">
+    <div className="h-screen flex flex-col bg-transparent text-white overflow-hidden">
       <CoinExplosion active={coinActive} />
       <VarArrows activeLineId={activeLineId} />
 
@@ -105,7 +105,7 @@ export default function App() {
         href="https://github.com/zhang-wei-jian/SushiSwap-MasterChef-Playground"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 z-50 text-gray-600 hover:text-white transition-colors duration-200"
+        className="fixed bottom-4 right-4 z-50 text-gray-600 hover:text-white transition-all duration-300 hover:scale-110"
       >
         <svg height="32" width="32" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
@@ -113,40 +113,46 @@ export default function App() {
       </a>
 
       {/* 3-column grid layout */}
-      <div className="flex-1 grid grid-cols-[350px_1fr_320px] gap-px bg-gray-800 overflow-hidden">
+      <div className="flex-1 grid grid-cols-[350px_1fr_320px] gap-[2px] bg-gray-800/50 overflow-hidden">
         {/* Left: Control Panel */}
-        <ControlPanel
-          globalState={globalState}
-          users={users}
-          currentUser={currentUser}
-          isExecuting={isExecuting}
-          steps={steps}
-          currentStepIndex={currentStepIndex}
-          onSwitchUser={setCurrentUser}
-          onRunTransaction={runTransaction}
-          onHarvest={() => runTransaction('deposit', 0)}
-          onNextBlock={nextBlock}
-          onReset={reset}
-          onSetCurrentStepIndex={setCurrentUserStepIndex}
-          onClearSteps={clearSteps}
-        />
+        <div className="glass">
+          <ControlPanel
+            globalState={globalState}
+            users={users}
+            currentUser={currentUser}
+            isExecuting={isExecuting}
+            steps={steps}
+            currentStepIndex={currentStepIndex}
+            onSwitchUser={setCurrentUser}
+            onRunTransaction={runTransaction}
+            onHarvest={() => runTransaction('deposit', 0)}
+            onNextBlock={nextBlock}
+            onReset={reset}
+            onSetCurrentStepIndex={setCurrentUserStepIndex}
+            onClearSteps={clearSteps}
+          />
+        </div>
 
         {/* Center: Code Viewer */}
-        <CodeSection
-          activeLineId={activeLineId}
-          activeStepKey={activeStepKey}
-        />
+        <div className="glass">
+          <CodeSection
+            activeLineId={activeLineId}
+            activeStepKey={activeStepKey}
+          />
+        </div>
 
         {/* Right: State Boards */}
-        <StateCard
-          globalState={displayGlobalState}
-          user={displayUserState}
-          currentUser={currentUser}
-          onSwitchUser={setCurrentUser}
-          pendingSushi={getPendingSushi(currentUser)}
-          logs={logs}
-          currentStepIndex={currentStepIndex}
-        />
+        <div className="glass">
+          <StateCard
+            globalState={displayGlobalState}
+            user={displayUserState}
+            currentUser={currentUser}
+            onSwitchUser={setCurrentUser}
+            pendingSushi={getPendingSushi(currentUser)}
+            logs={logs}
+            currentStepIndex={currentStepIndex}
+          />
+        </div>
       </div>
     </div>
   );

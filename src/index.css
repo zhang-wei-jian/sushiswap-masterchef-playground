@@ -2,6 +2,13 @@
 
 :root {
   --primary: #fa0050;
+  --primary-light: #ff2d6f;
+  --primary-dark: #c8003f;
+  --accent: #00d4ff;
+  --accent-light: #33ddff;
+  --success: #00ff88;
+  --warning: #ffaa00;
+  --danger: #ff4444;
 }
 
 html, body, #root {
@@ -12,7 +19,7 @@ html, body, #root {
 }
 
 body {
-  background: #111827;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   color: #f9fafb;
   font-family:
     ui-monospace,
@@ -35,12 +42,51 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: linear-gradient(180deg, #374151, #4b5563);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: linear-gradient(180deg, #4b5563, #6b7280);
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glow effects */
+.glow-red {
+  box-shadow: 0 0 20px rgba(250, 0, 80, 0.3), 0 0 40px rgba(250, 0, 80, 0.1);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+}
+
+/* Pulse animation */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #fa0050, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Prism token colors (dark theme) */

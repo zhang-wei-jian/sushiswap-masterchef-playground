@@ -139,8 +139,8 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
       : null;
 
   return (
-    <section className="flex flex-col h-full bg-[#1e1e1e] overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-700 shrink-0">
+    <section className="flex flex-col h-full bg-transparent overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-700/50 shrink-0">
         <FileCode2 size={16} className="text-red-500" />
         <span className="text-sm font-medium text-gray-300">Solidity</span>
         <AnimatePresence>
@@ -150,7 +150,7 @@ export default function CodeSection({ activeLineId, activeStepKey }: CodeSection
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.08 }}
-              className="ml-auto text-xs font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30"
+              className="ml-auto text-xs font-mono px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30"
             >
               {stepLabel}
             </motion.span>
